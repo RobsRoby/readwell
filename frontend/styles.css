@@ -5,55 +5,55 @@ body {
     padding: 0;
     background-color: #f7f9fc;
     color: #333;
-  }
-  header {
+}
+header {
     background: #4CAF50;
     color: white;
     padding: 1rem 0;
     text-align: center;
-  }
-  main {
+}
+main {
     max-width: 800px;
     margin: 2rem auto;
     padding: 1rem;
     background: white;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  }
-  section {
+}
+section {
     margin-bottom: 2rem;
-  }
-  h1, h2, h3 {
+}
+h1, h2, h3 {
     margin-top: 0;
-  }
-  .button {
+}
+.button {
     background: #4CAF50;
     color: white;
     border: none;
     padding: 0.5rem 1rem;
     cursor: pointer;
-  }
-  .button:hover {
+}
+.button:hover {
     background: #45a049;
-  }
-  textarea {
+}
+textarea {
     width: 100%;
     height: 100px;
     padding: 0.5rem;
     margin-bottom: 1rem;
-  }
-  .sentence {
+}
+.sentence {
     padding: 0.5rem;
     margin: 0.5rem 0;
     background: #f1f1f1;
     border-radius: 4px;
-  }
-  .tooltip {
+}
+.tooltip {
     position: relative;
     display: inline-block;
     cursor: pointer;
     text-decoration: underline;
-  }
-  .tooltip .tooltiptext {
+}
+.tooltip .tooltiptext {
     visibility: hidden;
     width: 200px;
     background-color: #555;
@@ -68,8 +68,31 @@ body {
     transform: translateX(-50%);
     opacity: 0;
     transition: opacity 0.3s;
-  }
-  .tooltip:hover .tooltiptext {
+}
+.tooltip:hover .tooltiptext {
     visibility: visible;
     opacity: 1;
-  }
+}
+
+/* Complexity Styles */
+/* Highlight sentences based on complexity */
+.simple {
+    background-color: #d4edda;
+    color: #155724;
+    border-left: 5px solid #28a745;
+    padding: 5px;
+}
+
+.moderate {
+    background-color: #fff3cd;
+    color: #856404;
+    border-left: 5px solid #ffc107;
+    padding: 5px;
+}
+
+.complex {
+    background-color: #f8d7da;
+    color: #721c24;
+    border-left: 5px solid #dc3545;
+    padding: 5px;
+}
