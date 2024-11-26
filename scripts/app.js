@@ -77,6 +77,7 @@ async function startTrainingProcess() {
             text: 'The model has been successfully trained!',
             icon: 'success'
         });
+        await checkAndHandleModel();
     } catch (error) {
         console.error('Error during training:', error);
         Swal.fire({

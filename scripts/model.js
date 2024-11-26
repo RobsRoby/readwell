@@ -13,7 +13,6 @@ async function checkModelFile() {
 
     try {
         model = await tf.loadLayersModel('localstorage://cefr-model');
-
         console.log('Model loaded successfully');
         return true;
     } catch (error) {
