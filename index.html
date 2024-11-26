@@ -15,8 +15,12 @@
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
     <!-- TensorFlow.js Vis -->
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-vis"></script>
-
+    <!-- Papaparse.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+    <!-- pdf.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+    <!-- @google/generative-ai -->
+    <script src="https://cdn.jsdelivr.net/npm/@google/generative-ai@0.21.0/dist/index.min.js"></script>
 
     <link href="styles/style.css" rel="stylesheet">
 
@@ -49,10 +53,16 @@
                     </li>
                 </ul>
                 <ul class="navbar-nav ms-auto"> <!-- 'ms-auto' for right alignment -->
-                    <li class="nav-item">
-                        <a class="nav-link" href="#" id="save-button"><i class="fas fa-save"></i> Save</a>
+                    <li class="nav-item d-flex align-items-center">
+                        <a class="nav-link" href="#" id="clear-text-container">
+                            <i class="fas fa-trash"></i> Clear
+                        </a>
+                        <a class="nav-link" href="#" id="save-button">
+                            <i class="fas fa-save"></i> Save
+                        </a>
                     </li>
                 </ul>
+                                
             </div>
         </div>
     </nav>
@@ -67,18 +77,15 @@
             <h5>Extracted Text</h5>
             <p>Click on a sentence for context or to simplify it further.</p>
 
-            <div id="text-container">
-                <p class="sentence">This is a sample complex sentence that can be simplified by clicking.</p>
-                <p class="sentence">Here is another sentence that is easier to understand.</p>
-                <p class="sentence">Here is another sentence that is easier to understand.ASDFASDF</p>
-            </div>
+            <div id="text-container"></div>
 
             <!-- Controls -->
             <div class="d-flex justify-content-center align-items-center mt-3">
                 <button class="btn btn-primary me-2" id="prev-sentence"><i class="fas fa-step-backward"></i> Back</button>
                 <button class="btn btn-success me-2" id="play-pause"><i class="fas fa-play"></i> Play</button>
-                <button class="btn btn-primary" id="next-sentence"><i class="fas fa-step-forward"></i> Next</button>
+                <button class="btn btn-primary me-2" id="next-sentence"><i class="fas fa-step-forward"></i> Next</button>
             </div>
+
         </div>
     </div>
 
@@ -93,6 +100,8 @@
     <!-- SweetAlert2 JS -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
     <script src="scripts/model.js"></script>
+    <script src="scripts/tts.js"></script>
+    <script src="scripts/simplify.js"></script>
     <script src="scripts/app.js"></script>
 </body>
 </html>

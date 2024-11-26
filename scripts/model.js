@@ -14,7 +14,7 @@ async function checkModelFile() {
         console.log('Model loaded successfully');
         return true;
     } catch (error) {
-        console.error('Error checking model file:', error);
+        console.error('There is no model yet.');
         return false;
     } finally {
         spinner.classList.add('hidden'); // Hide the spinner
@@ -167,9 +167,3 @@ async function predict(inputText) {
     };
     return labelMap[predictedLabelIndex];
 }
-
-
-
-
-// GRAPHS RELATION TO TFVIS VISOR
-//WALA PAAAAA

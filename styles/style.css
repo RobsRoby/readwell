@@ -67,3 +67,38 @@ body {
         transform: rotate(360deg);
     }
 }
+
+#text-container {
+    max-height: 400px;
+    overflow-y: auto;
+    padding: 10px;
+    border: 1px solid #ccc;
+    background: #f9f9f9;
+}
+
+.sentence.highlighted {
+    background-color: rgba(1,1,1,0.05);/* Yellow background */
+    color: #000; /* Black text */
+    border-radius: 5px;
+    padding: 2px 4px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.sentence[data-cefr="A1"] {
+    background-color: lightgreen;
+}
+.sentence[data-cefr="A2"] {
+    background-color: green;
+}
+.sentence[data-cefr="B1"] {
+    background-color: lightblue;
+}
+.sentence[data-cefr="B2"] {
+    background-color: blue;
+}
+.sentence[data-cefr="C1"] {
+    background-color: orange;
+}
+.sentence[data-cefr="C2"] {
+    background-color: red;
+}

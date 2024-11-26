@@ -1,6 +1,13 @@
-
 document.addEventListener('DOMContentLoaded', () => {
     checkAndHandleModel();
+
+    const readingSection = document.querySelector('.reading-section');
+    const textContainer = document.getElementById('text-container');
+
+    // Hide the reading section initially if no text exists
+    if (textContainer.children.length === 0) {
+        readingSection.style.display = 'none';
+    }
 });
 
 document.getElementById('train-model').addEventListener('click', () => {
@@ -10,7 +17,6 @@ document.getElementById('train-model').addEventListener('click', () => {
 // Function to check if the model exists and handle accordingly
 async function checkAndHandleModel() {
     const fileExists = await checkModelFile();
-    console.log(await predict('Hello World!')); // I did it!!!!!
     if (!fileExists) {
         promptForTraining('The model file does not exist. Would you like to train the model?');
     }
@@ -98,19 +104,109 @@ function showUnclosableError() {
 document.getElementById('import-file').addEventListener('click', () => {
     Swal.fire({
         title: 'Import PDF',
-        html: '<input type="file" class="form-control mt-3">',
+        html: '<input type="file" id="pdf-input" class="form-control mt-3" accept=".pdf">',
         showCancelButton: true,
-        confirmButtonText: 'Upload'
+        confirmButtonText: 'Upload',
+        preConfirm: () => {
+            const fileInput = document.getElementById('pdf-input');
+            if (fileInput.files.length === 0) {
+                Swal.showValidationMessage('Please select a PDF file.');
+                return false;
+            }
+            return fileInput.files[0];
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const pdfFile = result.value;
+            parsePDF(pdfFile);
+        }
     });
 });
+
+// Function to parse the PDF file and extract text
+function parsePDF(file) {
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+        const typedarray = new Uint8Array(e.target.result);
+
+        try {
+            const pdf = await pdfjsLib.getDocument(typedarray).promise;
+            let text = '';
+
+            for (let i = 1; i <= pdf.numPages; i++) {
+                const page = await pdf.getPage(i);
+                const content = await page.getTextContent();
+
+                // Extract the text content
+                const pageText = content.items.map(item => item.str).join(' ');
+                text += pageText + '\n'; // Add a newline for separation between pages
+            }
+
+            // Populate the text-container
+            populateTextContainer(text);
+        } catch (error) {
+            console.error('Error parsing PDF:', error);
+            Swal.fire({
+                title: 'Error',
+                text: 'Unable to parse the PDF file. Please try again.',
+                icon: 'error'
+            });
+        }
+    };
+
+    reader.onerror = () => {
+        Swal.fire({
+            title: 'Error',
+            text: 'Failed to read the file. Please try again.',
+            icon: 'error'
+        });
+    };
+
+    reader.readAsArrayBuffer(file);
+}
+
 
 // Paste Text Modal
 document.getElementById('paste-text').addEventListener('click', () => {
     Swal.fire({
         title: 'Paste Text',
-        html: '<textarea class="form-control" rows="5" placeholder="Paste your text here..."></textarea>',
+        html: '<textarea id="text-input" class="form-control" rows="5" placeholder="Paste your text here..."></textarea>',
         showCancelButton: true,
-        confirmButtonText: 'Submit'
+        confirmButtonText: 'Submit',
+        preConfirm: () => {
+            const textInput = document.getElementById('text-input').value;
+            populateTextContainer(textInput);
+        }
+    });
+});
+
+// Clear button
+document.getElementById('clear-text-container').addEventListener('click', () => {
+    const textContainer = document.getElementById('text-container');
+    const readingSection = document.querySelector('.reading-section');
+
+    // Confirm the action with the user
+    Swal.fire({
+        title: 'Clear Text?',
+        text: 'Are you sure you want to clear all the text?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Yes, Clear',
+        cancelButtonText: 'Cancel',
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Clear the text-container
+            textContainer.innerHTML = '';
+            readingSection.style.display = 'none'; // Hide the section if no text exists
+
+            Swal.fire({
+                title: 'Cleared',
+                text: 'The text container has been cleared.',
+                icon: 'success',
+                timer: 1500,
+                showConfirmButton: false,
+            });
+        }
     });
 });
 
@@ -119,76 +215,46 @@ document.getElementById('view-graph').addEventListener('click', () => {
     tfvis.visor().toggle(); // Toggle the tfvis visor for graphs
 });
 
-// JavaScript to trigger SweetAlert when Save button is clicked
+// Save Button
 document.getElementById('save-button').addEventListener('click', () => {
-    Swal.fire({
-        title: 'Saving Data',
-        text: 'Do you want to save your current progress?',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonText: 'Yes, Save',
-        cancelButtonText: 'Cancel',
-        preConfirm: () => {
-            // Simulate a save action (you can replace this with an actual save process)
-            return new Promise(resolve => {
-                setTimeout(() => {
-                    resolve();
-                    Swal.fire({
-                        title: 'Saved!',
-                        text: 'Your progress has been saved.',
-                        icon: 'success',
-                        confirmButtonText: 'Okay'
-                    });
-                }, 2000); // Simulating a save process with a 2 second delay
-            });
-        }
-    });
-});
+    const textContainer = document.getElementById('text-container');
 
-// Variables to track playback state
-let isPlaying = false;
-let isPaused = false;
+    // Get the text content from the text-container
+    const text = Array.from(textContainer.querySelectorAll('.sentence'))
+        .map(sentence => sentence.textContent.replace(/\[\w+\]\s/, '')) // Remove subscript and whitespace
+        .join('\n'); // Join sentences with new lines
 
-const playPauseButton = document.getElementById('play-pause');
-const playIcon = '<i class="fas fa-play"></i> Play';
-const pauseIcon = '<i class="fas fa-pause"></i> Pause';
-const stopIcon = '<i class="fas fa-stop"></i> Stop';
-
-// Event listener for the Play/Pause/Stop button
-playPauseButton.addEventListener('click', () => {
-    if (!isPlaying) {
-        // Start playing
-        isPlaying = true;
-        isPaused = false;
-        playPauseButton.innerHTML = pauseIcon;
-        playPauseButton.classList.remove('btn-success');
-        playPauseButton.classList.add('btn-warning'); // Change color to yellow for Pause
-        alert('Playing text aloud...');
-    } else if (isPlaying && !isPaused) {
-        // Pause playback
-        isPaused = true;
-        playPauseButton.innerHTML = stopIcon;
-        playPauseButton.classList.remove('btn-warning');
-        playPauseButton.classList.add('btn-danger'); // Change color to red for Stop
-        alert('Paused playback.');
-    } else {
-        // Stop playback
-        isPlaying = false;
-        isPaused = false;
-        playPauseButton.innerHTML = playIcon;
-        playPauseButton.classList.remove('btn-danger');
-        playPauseButton.classList.add('btn-success'); // Change color back to green for Play
-        alert('Stopped playback.');
+    if (!text.trim()) {
+        Swal.fire({
+            title: 'No Content',
+            text: 'The text container is empty. Please add content to save.',
+            icon: 'warning',
+            confirmButtonText: 'Okay'
+        });
+        return;
     }
-});
 
-// Placeholder for navigating sentences
-document.getElementById('prev-sentence').addEventListener('click', () => {
-    alert('Previous sentence.');
-});
+    // Create a blob with the text content
+    const blob = new Blob([text], { type: 'text/plain' });
+    const link = document.createElement('a');
 
-document.getElementById('next-sentence').addEventListener('click', () => {
-    alert('Next sentence.');
+    // Create a downloadable link
+    link.href = URL.createObjectURL(blob);
+    link.download = 'text-container-content.txt';
+
+    // Simulate a click to trigger the download
+    link.click();
+
+    // Clean up the URL object
+    URL.revokeObjectURL(link.href);
+
+    Swal.fire({
+        title: 'Saved!',
+        text: 'The text container content has been saved as a .txt file.',
+        icon: 'success',
+        timer: 1500,
+        showConfirmButton: false,
+    });
 });
 
 // Sentence simplification interaction
@@ -212,4 +278,77 @@ document.querySelectorAll('.sentence').forEach(sentence => {
         });
     });
 });
+
+// Populate text-container with individual sentences
+async function populateTextContainer(text) {
+    const textContainer = document.getElementById('text-container');
+    const readingSection = document.querySelector('.reading-section');
+    textContainer.innerHTML = ''; // Clear existing content
+
+    if (!text.trim()) {
+        Swal.fire({
+            title: 'No Text Provided',
+            text: 'Please paste or import text to get started.',
+            icon: 'warning',
+            confirmButtonText: 'Okay'
+        });
+        return;
+    }
+
+    // Show the reading section
+    readingSection.style.display = 'block';
+
+    // Split text into sentences using basic delimiters (period, exclamation, question marks)
+    const sentences = text.match(/[^.!?]+[.!?]*/g) || [];
+    for (const sentence of sentences) {
+        const p = document.createElement('p');
+        p.classList.add('sentence');
+        p.textContent = sentence.trim();
+
+        try {
+            // Predict CEFR level
+            const predictedLevel = await predict(sentence.trim());
+
+            // Add subscript
+            const subscript = document.createElement('sub');
+            subscript.textContent = `[${predictedLevel}] `;
+            p.prepend(subscript);
+
+            // Add color based on CEFR level
+            const colorMap = {
+                "A1": "lightgreen",
+                "A2": "green",
+                "B1": "lightblue",
+                "B2": "blue",
+                "C1": "orange",
+                "C2": "red"
+            };
+            p.style.backgroundColor = colorMap[predictedLevel];
+        } catch (error) {
+            console.error('Prediction error:', error);
+        }
+
+        textContainer.appendChild(p);
+
+        // Add click event listener for each sentence
+        p.addEventListener('click', () => {
+            Swal.fire({
+                title: 'Simplifying...',
+                text: `Please wait while the sentence "${sentence.trim()}" is being simplified.`,
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                    // Simulate a delay for simplification
+                    setTimeout(() => {
+                        Swal.fire({
+                            title: 'Simplified Sentence',
+                            text: 'Here is the simplified version of the sentence.',
+                            icon: 'success'
+                        });
+                    }, 2000); // Simulate 2 seconds delay
+                }
+            });
+        });
+    }
+}
 
