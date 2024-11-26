@@ -87,6 +87,8 @@ async function startSpeech() {
             } else {
                 resetSpeech(); // End playback
             }
+        }else{
+            isSkipping = false;
         }
     };
 
