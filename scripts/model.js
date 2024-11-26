@@ -8,11 +8,11 @@ let preprocessedData;
 async function checkModelFile() {
     const spinner = document.getElementById('loading-spinner');
     spinner.classList.remove('hidden'); // Show the spinner
+    dataset = await loadDataset(); // Load dataset
+    preprocessedData = await preprocessDataset(dataset); // Preprocess it
 
     try {
         model = await tf.loadLayersModel('localstorage://cefr-model');
-        dataset = await loadDataset(); // Load dataset
-        preprocessedData = await preprocessDataset(dataset); // Preprocess it
 
         console.log('Model loaded successfully');
         return true;
