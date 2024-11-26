@@ -210,11 +210,6 @@ document.getElementById('clear-text-container').addEventListener('click', () => 
     });
 });
 
-// Toggle Right Sidebar for Graphs
-document.getElementById('view-graph').addEventListener('click', () => {
-    tfvis.visor().toggle(); // Toggle the tfvis visor for graphs
-});
-
 // Save Button
 document.getElementById('save-button').addEventListener('click', () => {
     const textContainer = document.getElementById('text-container');
@@ -316,12 +311,12 @@ async function populateTextContainer(text) {
 
             // Add color based on CEFR level
             const colorMap = {
-                "A1": "lightgreen",
-                "A2": "green",
-                "B1": "lightblue",
-                "B2": "blue",
-                "C1": "orange",
-                "C2": "red"
+                "A1": "rgba(144, 238, 144, 0.5)",
+                "A2": "rgba(0, 255, 0, 0.05)",
+                "B1": "rgba(173, 216, 230, 0.5)",
+                "B2": "rgba(0, 0, 255, 0.5)",
+                "C1": "rgba(255, 165, 0, 0.5)",
+                "C2": "rgba(255, 0, 0, 0.5)"
             };
             p.style.backgroundColor = colorMap[predictedLevel];
         } catch (error) {
@@ -354,12 +349,12 @@ async function populateTextContainer(text) {
                 p.prepend(subscript);
 
                 const colorMap = {
-                    "A1": "lightgreen",
-                    "A2": "green",
-                    "B1": "lightblue",
-                    "B2": "blue",
-                    "C1": "orange",
-                    "C2": "red"
+                    "A1": "rgba(144, 238, 144, 0.5)",
+                    "A2": "rgba(0, 255, 0, 0.05)",
+                    "B1": "rgba(173, 216, 230, 0.5)",
+                    "B2": "rgba(0, 0, 255, 0.5)",
+                    "C1": "rgba(255, 165, 0, 0.5)",
+                    "C2": "rgba(255, 0, 0, 0.5)"
                 };
                 p.style.backgroundColor = colorMap[predictedLevel];
 

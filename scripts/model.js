@@ -2,6 +2,8 @@ let model;
 let dataset;
 let preprocessedData;
 
+
+
 // Check if the model exists
 async function checkModelFile() {
     const spinner = document.getElementById('loading-spinner');
@@ -11,10 +13,11 @@ async function checkModelFile() {
         model = await tf.loadLayersModel('localstorage://cefr-model');
         dataset = await loadDataset(); // Load dataset
         preprocessedData = await preprocessDataset(dataset); // Preprocess it
+
         console.log('Model loaded successfully');
         return true;
     } catch (error) {
-        console.error('There is no model yet.');
+        console.error('There is no model yet.', error);
         return false;
     } finally {
         spinner.classList.add('hidden'); // Hide the spinner
@@ -84,6 +87,7 @@ function preprocessDataset(dataset) {
     const texts = dataset.map(row => row.text);
     const labels = dataset.map(row => mapLabelToInt(row.label));
 
+    // Create word index and tokenize
     const wordIndex = {};
     let currentIndex = 1;
 
@@ -96,25 +100,22 @@ function preprocessDataset(dataset) {
         });
     });
 
-    const vocabSize = currentIndex;
-    const maxSequenceLength = 100;
-
     const sequences = texts.map(text =>
         text.split(/\s+/).map(word => wordIndex[word.toLowerCase().replace(/[^a-z0-9]/g, '')] || 0)
     );
 
+    const maxSequenceLength = Math.max(...sequences.map(seq => seq.length));
     const paddedSequences = sequences.map(seq =>
         seq.length > maxSequenceLength
             ? seq.slice(0, maxSequenceLength)
             : [...seq, ...Array(maxSequenceLength - seq.length).fill(0)]
     );
 
-    const inputs = tf.tensor2d(paddedSequences, undefined, 'float32');
+    const inputs = tf.tensor2d(paddedSequences, [paddedSequences.length, maxSequenceLength], 'int32');
     const labelsTensor = tf.tensor1d(labels, 'float32');
 
-    return { inputs, labels: labelsTensor, vocabSize, maxSequenceLength, wordIndex };
+    return { inputs, labels: labelsTensor, vocabSize: currentIndex, maxSequenceLength, wordIndex };
 }
-
 
 // Map CEFR label
 function mapLabelToInt(label) {
