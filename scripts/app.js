@@ -331,24 +331,50 @@ async function populateTextContainer(text) {
         textContainer.appendChild(p);
 
         // Add click event listener for each sentence
-        p.addEventListener('click', () => {
-            Swal.fire({
-                title: 'Simplifying...',
-                text: `Please wait while the sentence "${sentence.trim()}" is being simplified.`,
-                allowOutsideClick: false,
-                didOpen: () => {
-                    Swal.showLoading();
-                    // Simulate a delay for simplification
-                    setTimeout(() => {
-                        Swal.fire({
-                            title: 'Simplified Sentence',
-                            text: 'Here is the simplified version of the sentence.',
-                            icon: 'success'
-                        });
-                    }, 2000); // Simulate 2 seconds delay
-                }
-            });
+        p.addEventListener('click', async () => {
+            try {
+                // Display loading Swal while simplifying
+                Swal.fire({
+                    title: 'Simplifying...',
+                    text: `Please wait while the sentence "${sentence.trim()}" is being simplified.`,
+                    allowOutsideClick: false,
+                    didOpen: () => Swal.showLoading()
+                });
+
+                // Call the simplify function
+                const simplifiedText = await simplify(sentence.trim());
+
+                // Update DOM with the simplified text
+                p.textContent = simplifiedText;
+
+                // Reapply CEFR prediction and color coding
+                const predictedLevel = await predict(simplifiedText);
+                const subscript = document.createElement('sub');
+                subscript.textContent = `[${predictedLevel}] `;
+                p.prepend(subscript);
+
+                const colorMap = {
+                    "A1": "lightgreen",
+                    "A2": "green",
+                    "B1": "lightblue",
+                    "B2": "blue",
+                    "C1": "orange",
+                    "C2": "red"
+                };
+                p.style.backgroundColor = colorMap[predictedLevel];
+
+                Swal.close(); // Close the Swal
+
+            } catch (error) {
+                console.error('Simplification error:', error);
+                Swal.fire({
+                    title: 'Error',
+                    text: 'Failed to simplify the sentence. Please try again.',
+                    icon: 'error'
+                });
+            }
         });
     }
 }
+
 
