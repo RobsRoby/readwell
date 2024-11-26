@@ -4,6 +4,7 @@ let utterance = null;
 let sentences = [];
 let currentSentenceIndex = 0;
 let isPaused = false;
+let isSkipping = false;
 
 // Get button references
 const playPauseButton = document.getElementById('play-pause');
@@ -31,24 +32,26 @@ playPauseButton.addEventListener('click', () => {
 });
 
 // Previous and Next button functionality
-prevButton.addEventListener('click', () => {
+prevButton.addEventListener('click', async () => {
     if (currentSentenceIndex > 0) {
         currentSentenceIndex--;
+        isSkipping = true;
         stopSpeech();
-        startSpeech();
+        await startSpeech();
     }
 });
 
-nextButton.addEventListener('click', () => {
+nextButton.addEventListener('click', async () => {
     if (currentSentenceIndex < sentences.length - 1) {
         currentSentenceIndex++;
+        isSkipping = true;
         stopSpeech();
-        startSpeech();
+        await startSpeech();
     }
 });
 
 // Function to start speech synthesis
-function startSpeech() {
+async function startSpeech() {
     // Get all sentences from the text-container
     const textContainer = document.getElementById('text-container');
     sentences = Array.from(textContainer.querySelectorAll('.sentence')).map(
@@ -72,15 +75,18 @@ function startSpeech() {
     utterance.pitch = 1; // Set speech pitch, adjust as needed
 
     // Highlight the current sentence
-    highlightCurrentSentence();
+    await highlightCurrentSentence();
+    console.log(currentSentenceIndex);
 
     // Handle speech synthesis events
     utterance.onend = () => {
-        if (currentSentenceIndex < sentences.length - 1) {
-            currentSentenceIndex++;
-            startSpeech(); // Move to next sentence
-        } else {
-            resetSpeech(); // End playback
+        if (!isSkipping){
+            if (currentSentenceIndex < sentences.length - 1) {
+                currentSentenceIndex = currentSentenceIndex + 1;
+                startSpeech(); // Move to next sentence
+            } else {
+                resetSpeech(); // End playback
+            }
         }
     };
 
@@ -113,7 +119,7 @@ function stopSpeech() {
 }
 
 // Function to reset speech synthesis
-function resetSpeech() {
+async function resetSpeech() {
     stopSpeech();
     utterance = null;
     currentSentenceIndex = 0;
@@ -121,7 +127,7 @@ function resetSpeech() {
 }
 
 // Function to highlight the current sentence
-function highlightCurrentSentence() {
+async function highlightCurrentSentence() {
     const textContainer = document.getElementById('text-container');
     const sentenceElements = Array.from(
         textContainer.querySelectorAll('.sentence')
